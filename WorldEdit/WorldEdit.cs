@@ -13,6 +13,7 @@ using Microsoft.Xna.Framework;
 using MySql.Data.MySqlClient;
 using Terraria;
 using Terraria.ID;
+using Terraria.GameContent.UI;
 using Terraria.Utilities;
 using TerrariaApi.Server;
 using TShockAPI;
@@ -166,48 +167,92 @@ namespace WorldEdit
 				#region Packet 109 - MassWireOperation
 
 				case PacketTypes.MassWireOperation:
-					PlayerInfo data = TShock.Players[e.Msg.whoAmI].GetPlayerInfo();
-					if (data.Point != 0)
-					{
-						using (var reader = new BinaryReader(new MemoryStream(e.Msg.readBuffer, e.Index, e.Length)))
-						{
-							int startX = reader.ReadInt16();
-							int startY = reader.ReadInt16();
-							int endX = reader.ReadInt16();
-							int endY = reader.ReadInt16();
+					TSPlayer player = TShock.Players[e.Msg.whoAmI];
+					PlayerInfo data = player.GetPlayerInfo();
+					using (var reader = new BinaryReader(new MemoryStream(e.Msg.readBuffer, e.Index, e.Length)))
+                    {
+						int startX = reader.ReadInt16();
+						int startY = reader.ReadInt16();
+						int endX = reader.ReadInt16();
+						int endY = reader.ReadInt16();
+                        WiresUI.Settings.MultiToolMode toolMode =
+                            (WiresUI.Settings.MultiToolMode)reader.ReadByte();
 
-							if (startX >= 0 && startY >= 0 && endX >= 0 && endY >= 0 && startX < Main.maxTilesX && startY < Main.maxTilesY && endX < Main.maxTilesX && endY < Main.maxTilesY)
-                            {
-                                if (data.Point == 4)
+						if (data.infWand)
+                        {
+							if (startX == endX && startY == endY)
+							{
+								if (toolMode.HasFlag(WiresUI.Settings.MultiToolMode.Cutter))
                                 {
-                                    if (!MagicWand.GetMagicWandSelection(startX, startY,
-                                        data.SavedExpression,
-                                        TShock.Players[e.Msg.whoAmI], out MagicWand selection))
+									if (data.wandPoints)
                                     {
-                                        TShock.Players[e.Msg.whoAmI].SendErrorMessage("Can't " +
-                                            "start counting magic wand selection from this tile.");
-                                    }
-                                    else
+										data.wandPoints = false;
+										player.SendInfoMessage("Setting points with the wand is disabled.");
+									}
+									else
                                     {
-                                        data.MagicWand = selection;
-                                        TShock.Players[e.Msg.whoAmI].SendSuccessMessage("Set magic wand selection.");
-                                    }
-                                    data.SavedExpression = null;
-                                }
-                                else if (startX == endX && startY == endY)
+										if (!data.wandLastPoint.HasValue)
+                                        {
+											data.wandLastPoint = new Point(startX, startY);
+										}
+										else
+                                        {
+											if (data.wandLastPoint?.X == startX && data.wandLastPoint?.Y == startY)
+											{
+												e.Handled = true;
+												data.wandPoints = true;
+												player.SendInfoMessage("Setting points with the wand is enabled.");
+											}
+											data.wandLastPoint = null;
+											return;
+										}
+									}
+								}
+                            }
+							if (data.wandPoints)
+                            {
+								data.X = startX;
+								data.Y = startY;
+								data.X2 = endX;
+								data.Y2 = endY;
+								player.SendInfoMessage($"Set points to [{data.X}, {data.Y}] and [{data.X2}, {data.Y2}]");
+								e.Handled = true;
+							}
+                        }
+						else if (data.Point != 0)
+                        {
+							if (startX >= 0 && startY >= 0 && endX >= 0 && endY >= 0 && startX < Main.maxTilesX && startY < Main.maxTilesY && endX < Main.maxTilesX && endY < Main.maxTilesY)
+							{
+								if (data.Point == 4)
+								{
+									if (!MagicWand.GetMagicWandSelection(startX, startY,
+										data.SavedExpression,
+										TShock.Players[e.Msg.whoAmI], out MagicWand selection))
+									{
+										TShock.Players[e.Msg.whoAmI].SendErrorMessage("Can't " +
+											"start counting magic wand selection from this tile.");
+									}
+									else
+									{
+										data.MagicWand = selection;
+										TShock.Players[e.Msg.whoAmI].SendSuccessMessage("Set magic wand selection.");
+									}
+									data.SavedExpression = null;
+								}
+								else if (startX == endX && startY == endY)
 								{
 									// Set a single point
 									if (data.Point == 1)
 									{
 										data.X = startX;
 										data.Y = startY;
-										TShock.Players[e.Msg.whoAmI].SendInfoMessage("Set point 1.");
+										TShock.Players[e.Msg.whoAmI].SendInfoMessage($"Set point 1 to [{data.X}, {data.Y}]");
 									}
 									else if (data.Point == 2)
 									{
 										data.X2 = startX;
 										data.Y2 = startY;
-										TShock.Players[e.Msg.whoAmI].SendInfoMessage("Set point 2.");
+										TShock.Players[e.Msg.whoAmI].SendInfoMessage($"Set point 2 to [{data.X2}, {data.Y2}].");
 									}
 									else if (data.Point == 3)
 									{
@@ -223,10 +268,10 @@ namespace WorldEdit
 											data.Y = curReg.Area.Top;
 											data.X2 = curReg.Area.Right;
 											data.Y2 = curReg.Area.Bottom;
-											TShock.Players[e.Msg.whoAmI].SendInfoMessage("Set region.");
+											TShock.Players[e.Msg.whoAmI].SendInfoMessage($"Set region points to [{data.X}, {data.Y}] and [{data.X2}, {data.Y2}]");
 										}
-                                    }
-                                }
+									}
+								}
 								else
 								{
 									// Set both points at the same time
@@ -236,7 +281,7 @@ namespace WorldEdit
 										data.Y = startY;
 										data.X2 = endX;
 										data.Y2 = endY;
-										TShock.Players[e.Msg.whoAmI].SendInfoMessage("Set area.");
+										TShock.Players[e.Msg.whoAmI].SendInfoMessage($"Set points to [{data.X}, {data.Y}] and [{data.X2}, {data.Y2}]");
 									}
 									else if (data.Point == 3)
 									{
@@ -258,15 +303,16 @@ namespace WorldEdit
 											data.Y = curReg.Area.Top;
 											data.X2 = curReg.Area.Right;
 											data.Y2 = curReg.Area.Bottom;
-											TShock.Players[e.Msg.whoAmI].SendInfoMessage("Set region.");
+											TShock.Players[e.Msg.whoAmI].SendInfoMessage($"Set region points to [{data.X}, {data.Y}] and [{data.X2}, {data.Y2}]");
 										}
-                                    }
-                                }
-                                data.Point = 0;
+									}
+								}
+
+								data.Point = 0;
 								e.Handled = true;
 							}
 						}
-					}
+                    }
 					return;
 
 					#endregion
@@ -413,6 +459,10 @@ namespace WorldEdit
 			TShockAPI.Commands.ChatCommands.Add(new Command("worldedit.selection.point", Point2, "/point2", "/p2", "p2")
 			{
 				HelpText = "Sets the positions of the worldedit selection's second point."
+			});
+			TShockAPI.Commands.ChatCommands.Add(new Command("worldedit.selection.point", Wand, "/wandmode", "/wand")
+            {
+				HelpText = "It helps to manage the points always."
 			});
 			TShockAPI.Commands.ChatCommands.Add(new Command("worldedit.history.redo", Redo, "/redo")
 			{
@@ -1732,8 +1782,15 @@ namespace WorldEdit
         private void Point1(CommandArgs e)
 		{
 			PlayerInfo info = e.Player.GetPlayerInfo();
+
 			if (e.Parameters.Count == 0)
 			{
+				if (info.infWand)
+                {
+					e.Player.SendErrorMessage("Setting points while the wand is on is prohibited.");
+					return;
+                }
+
 				if (!e.Player.RealPlayer)
 					e.Player.SendErrorMessage("You must use this command in-game.");
 				else
@@ -1760,39 +1817,54 @@ namespace WorldEdit
 			info.X = x;
 			info.Y = y;
 			e.Player.SendInfoMessage("Set point 1.");
-		}
+        }
 
-		private void Point2(CommandArgs e)
-		{
-			PlayerInfo info = e.Player.GetPlayerInfo();
-			if (e.Parameters.Count == 0)
-			{
-				if (!e.Player.RealPlayer)
-					e.Player.SendErrorMessage("You must use this command in-game.");
-				else
+        private void Point2(CommandArgs e)
+        {
+            PlayerInfo info = e.Player.GetPlayerInfo();
+            if (e.Parameters.Count == 0)
+            {
+				if (info.infWand)
 				{
-					info.Point = 2;
-					e.Player.SendInfoMessage("Modify a block to set point 2.");
+					e.Player.SendErrorMessage("Setting points while the wand is on is prohibited.");
+					return;
 				}
-				return;
-			}
-			if (e.Parameters.Count != 2)
-			{
-				e.Player.SendErrorMessage("Invalid syntax! Proper syntax: //point2 [x] [y]");
-				return;
-			}
 
-			int x, y;
-			if (!int.TryParse(e.Parameters[0], out x) || x < 0 || x >= Main.maxTilesX
-				|| !int.TryParse(e.Parameters[1], out y) || y < 0 || y >= Main.maxTilesY)
-			{
-				e.Player.SendErrorMessage("Invalid coordinates '({0}, {1})'!", e.Parameters[0], e.Parameters[1]);
-				return;
-			}
+				if (!e.Player.RealPlayer)
+                    e.Player.SendErrorMessage("You must use this command in-game.");
+                else
+                {
+                    info.Point = 2;
+                    e.Player.SendInfoMessage("Modify a block to set point 2.");
+                }
+                return;
+            }
+            if (e.Parameters.Count != 2)
+            {
+                e.Player.SendErrorMessage("Invalid syntax! Proper syntax: //point2 [x] [y]");
+                return;
+            }
 
-			info.X2 = x;
-			info.Y2 = y;
-			e.Player.SendInfoMessage("Set point 2.");
+            int x, y;
+            if (!int.TryParse(e.Parameters[0], out x) || x < 0 || x >= Main.maxTilesX
+                || !int.TryParse(e.Parameters[1], out y) || y < 0 || y >= Main.maxTilesY)
+            {
+                e.Player.SendErrorMessage("Invalid coordinates '({0}, {1})'!", e.Parameters[0], e.Parameters[1]);
+                return;
+            }
+
+            info.X2 = x;
+            info.Y2 = y;
+            e.Player.SendInfoMessage("Set point 2.");
+        }
+
+		private void Wand(CommandArgs args)
+		{
+			var info = args.Player.GetPlayerInfo();
+			args.Player.SendSuccessMessage("Wand mode is {0}abled.", (info.infWand = !info.infWand) ? "en" : "dis");
+			info.wandPoints = info.infWand;
+			if (info.infWand)
+				args.Player.SendInfoMessage("Click on the point of wire removal to disable it. Press twice to turn it on again.");
 		}
 
 		private void Redo(CommandArgs e)

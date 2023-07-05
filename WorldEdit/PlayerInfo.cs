@@ -15,6 +15,11 @@ namespace WorldEdit
         public const string Key = "WorldEdit_Data";
         
         public int Point = 0;
+        
+        public bool infWand = false;
+        public bool wandPoints = true;
+        public Microsoft.Xna.Framework.Point? wandLastPoint;
+
 		public Selection Select = null;
         private MagicWand _magicWand = null;
         public Expression SavedExpression = null;
