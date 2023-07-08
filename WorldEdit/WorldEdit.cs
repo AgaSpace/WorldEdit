@@ -504,7 +504,7 @@ namespace WorldEdit
 			{
 				HelpText = "Sets certain grass in the worldedit selection."
 			});
-			TShockAPI.Commands.ChatCommands.Add(new Command("worldedit.region.setwall", SetWall, "/setwall", "/swa")
+			TShockAPI.Commands.ChatCommands.Add(new Command("worldedit.region.setwall", SetWall, "/setwall", "/sw")
 			{
 				HelpText = "Sets walls in the worldedit selection."
 			});
