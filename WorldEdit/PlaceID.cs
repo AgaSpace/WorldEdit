@@ -21,7 +21,7 @@ namespace WorldEdit
                 && expression.Evaluate(tile)
                 && magicWand.InSelection(x, y);
         }
-        void SetTile(int x, int y);
+        bool SetTile(int x, int y);
     }
     public interface TilePlaceID : PlaceID { }
     public enum LiquidKind
@@ -37,7 +37,7 @@ namespace WorldEdit
         public bool Is(ITile tile) => !tile.active();
         public bool CanSet(ITile tile, Selection selection, Expression expression, MagicWand magicWand, int x, int y, TSPlayer player) =>
             tile.active() && PlaceID.CanSetBase(tile, selection, expression, magicWand, x, y, player);
-        public void SetTile(int x, int y)
+        public bool SetTile(int x, int y)
         {
             var tile = Main.tile[x, y];
             tile.active(false);
@@ -46,6 +46,8 @@ namespace WorldEdit
             tile.liquidType(0);
             tile.liquid = 0;
             tile.type = 0;
+            tile.ClearBlockPaintAndCoating();
+            return true;
         }
     }
     public readonly record struct LiquidPlaceID(LiquidKind kind) : TilePlaceID
@@ -77,7 +79,7 @@ namespace WorldEdit
                 _ => throw new System.InvalidOperationException(),
             } && PlaceID.CanSetBase(tile, selection, expression, magicWand, x, y, player);
 
-        public void SetTile(int x, int y)
+        public bool SetTile(int x, int y)
         {
             var type = kind switch
             {
@@ -92,6 +94,7 @@ namespace WorldEdit
             tile.liquidType(type);
             tile.liquid = 255;
             tile.type = 0;
+            return true;
         }
     }
     public readonly record struct BlockPlaceID(int tileID, int placeStyle, string name) : TilePlaceID
@@ -109,10 +112,10 @@ namespace WorldEdit
             return tile.active() && tile.type == tileID;
         }
 
-        public void SetTile(int x, int y)
+        public bool SetTile(int x, int y)
         {
 			Main.tile[x, y].Clear(TileDataType.Tile);
-			WorldGen.PlaceTile(x, y, tileID, style: placeStyle);
+            bool result = WorldGen.PlaceTile(x, y, tileID, style: placeStyle);
 
 			#region Workarounds for WorldGen.PlaceTile being silly
 			// for some reason PlaceTile discards the placestyle for books
@@ -120,7 +123,9 @@ namespace WorldEdit
 			{
 				Main.tile[x, y].frameX = (short)(18 * placeStyle);
 			}
-			#endregion
+            #endregion
+
+            return result;
         }
     }
     public readonly record struct WallPlaceID(int wallID, string name) : PlaceID
@@ -135,9 +140,10 @@ namespace WorldEdit
         {
             return tile.wall == wallID;
         }
-        public void SetTile(int x, int y)
+        public bool SetTile(int x, int y)
         {
             Main.tile[x, y].wall = (ushort)wallID;
+            return true;
         }
     }
 }

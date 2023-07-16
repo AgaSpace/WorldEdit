@@ -28,8 +28,8 @@ namespace WorldEdit.Commands
 					if (tileType.CanSet(Main.tile[i, j],
                         select, expression, magicWand, i, j, plr))
 					{
-						tileType.SetTile(i, j);
-						edits++;
+						if (tileType.SetTile(i, j))
+							edits++;
 					}
 				}
 			}
