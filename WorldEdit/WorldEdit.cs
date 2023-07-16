@@ -680,6 +680,10 @@ namespace WorldEdit
 					|| (!Main.tile[i + 1, j + 1].active()) || (!Main.tile[i - 1, j - 1].active())
 					|| (!Main.tile[i - 1, j + 1].active()) || (!Main.tile[i + 1, j - 1].active())));
 			});
+			Selections.Add("random", (i, j, plr) =>
+            {
+				return (Main.rand ??= new UnifiedRandom()).Next(0, 2) == 1;
+            });
 			#endregion
 			#region Tiles
 			Tiles.Add("air", new AirPlaceID());
