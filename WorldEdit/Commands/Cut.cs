@@ -16,7 +16,7 @@ namespace WorldEdit.Commands
 		{
 			if (!CanUseCommand()) { return; }
 
-			foreach (string fileName in Directory.EnumerateFiles("worldedit", string.Format("redo-{0}-*.dat", plr.Account.ID)))
+			foreach (string fileName in Directory.EnumerateFiles("worldedit", string.Format("redo-{0}-{1}-*.dat", Main.worldID, plr.Account.ID)))
 				File.Delete(fileName);
 
 			if (WorldEdit.Database.GetSqlType() == SqlType.Mysql)
@@ -35,7 +35,7 @@ namespace WorldEdit.Commands
 			
 			string clipboard = Tools.GetClipboardPath(plr.Account.ID);
 
-			string undoPath = Path.Combine("worldedit", string.Format("undo-{0}-{1}.dat", plr.Account.ID, undoLevel));
+			string undoPath = Path.Combine("worldedit", string.Format("undo-{0}-{1}-{2}.dat", Main.worldID, plr.Account.ID, undoLevel));
 
 			Tools.SaveWorldSection(x, y, x2, y2, undoPath);
             Tools.ClearObjects(x, y, x2, y2);
