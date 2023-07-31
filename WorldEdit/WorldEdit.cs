@@ -2326,7 +2326,8 @@ namespace WorldEdit
                                     $"write '//schematic save <-force/-f> {name}' to overwrite it.");
                                 return;
                             }
-                        }
+							FileSystem.DeleteFile(path, UIOption.OnlyErrorDialogs, RecycleOption.SendToRecycleBin);
+						}
 
 						File.Copy(clipboard, path, true);
 
@@ -2388,7 +2389,8 @@ namespace WorldEdit
                                     $"write '//schematic copysave <-force/-f> {name}' to overwrite it.");
                                 return;
                             }
-                        }
+							FileSystem.DeleteFile(path, UIOption.OnlyErrorDialogs, RecycleOption.SendToRecycleBin);
+						}
 
                         _commandQueue.Add(new Copy(info.X, info.Y, info.X2, info.Y2, e.Player, path));
                     }
