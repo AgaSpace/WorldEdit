@@ -22,6 +22,7 @@ using WorldEdit.Commands;
 using WorldEdit.Expressions;
 using WorldEdit.Extensions;
 using Microsoft.VisualBasic.FileIO;
+using System.Diagnostics;
 
 namespace WorldEdit
 {
@@ -81,7 +82,16 @@ namespace WorldEdit
 			ServerApi.Hooks.GamePostInitialize.Register(this, OnPostInitialize);
 			ServerApi.Hooks.NetGetData.Register(this, OnGetData);
             TShockAPI.Hooks.GeneralHooks.ReloadEvent += OnReload;
+
+            On.Terraria.WorldGen.TileFrame += WorldGen_TileFrame;
 		}
+
+        private void WorldGen_TileFrame(On.Terraria.WorldGen.orig_TileFrame orig, int i, int j, bool resetFrame, bool noBreak)
+        {
+			orig.Invoke(i, j, resetFrame, new StackTrace()
+				.GetFrames().Any(i => i.GetMethod()?.Name == "PlaceTile"));
+		}
+
         private static void OnReload(TShockAPI.Hooks.ReloadEventArgs e)
         {
             Config = Config.Read(ConfigPath);
@@ -1868,7 +1878,10 @@ namespace WorldEdit
 			args.Player.SendSuccessMessage("Wand mode is {0}abled.", (info.infWand = !info.infWand) ? "en" : "dis");
 			info.wandPoints = info.infWand;
 			if (info.infWand)
+            {
+				info.Point = 0;
 				args.Player.SendInfoMessage("Click on the point of wire removal to disable it. Press twice to turn it on again.");
+			}
 		}
 
 		private void Redo(CommandArgs e)
