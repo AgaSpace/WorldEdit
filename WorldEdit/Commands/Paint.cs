@@ -9,8 +9,9 @@ namespace WorldEdit.Commands
 		private int color;
 		private Expression expression;
 
-		public Paint(int x, int y, int x2, int y2, MagicWand magicWand, TSPlayer plr, int color, Expression expression)
-			: base(x, y, x2, y2, magicWand, plr)
+		public Paint(int x, int y, int x2, int y2, MagicWand magicWand, TSPlayer plr, 
+			int color, Expression expression, string action)
+			: base(x, y, x2, y2, magicWand, plr, action)
 		{
 			this.color = color;
 			this.expression = expression ?? new TestExpression(new Test(t => true));
@@ -34,7 +35,8 @@ namespace WorldEdit.Commands
 				}
 			}
 			ResetSection();
-			plr.SendSuccessMessage("Painted tiles. ({0})", edits);
+            plr.SendSuccessMessage("Painted tiles. ({0})", edits);
+			base.Execute();
 		}
-	}
+    }
 }

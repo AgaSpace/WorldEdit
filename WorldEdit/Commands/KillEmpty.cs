@@ -4,8 +4,8 @@ namespace WorldEdit.Commands
     public class KillEmpty : WECommand
     {
         private readonly int _action;
-        public KillEmpty(int x, int y, int x2, int y2, TSPlayer plr, byte action)
-            : base(x, y, x2, y2, plr)
+        public KillEmpty(int x, int y, int x2, int y2, TSPlayer plr, string fullAction, byte action)
+            : base(x, y, x2, y2, plr, fullAction)
         {
             _action = action;
         }
@@ -34,6 +34,7 @@ namespace WorldEdit.Commands
 
             #endregion
             ResetSection();
+            base.Execute();
         }
     }
 }

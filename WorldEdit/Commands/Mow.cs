@@ -28,8 +28,8 @@ namespace WorldEdit.Commands
 			TileID.JungleVines
 		};
 
-		public Mow(int x, int y, int x2, int y2, TSPlayer plr)
-			: base(x, y, x2, y2, plr)
+		public Mow(int x, int y, int x2, int y2, TSPlayer plr, string action)
+			: base(x, y, x2, y2, plr, action)
 		{
 		}
 
@@ -53,6 +53,7 @@ namespace WorldEdit.Commands
 			}
 			ResetSection();
 			plr.SendSuccessMessage("Mowed grass, thorns, and vines. ({0})", edits);
+			base.Execute();
 		}
 	}
 }

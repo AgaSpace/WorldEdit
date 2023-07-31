@@ -10,8 +10,8 @@ namespace WorldEdit.Commands
         private readonly bool _addition;
         private readonly int _scale;
 
-        public Scale(TSPlayer plr, bool addition, int scale)
-			: base(0, 0, 0, 0, plr)
+        public Scale(TSPlayer plr, bool addition, int scale, string action)
+			: base(0, 0, 0, 0, plr, action)
 		{
             _addition = addition;
 			_scale = scale;

@@ -7,8 +7,8 @@ namespace WorldEdit.Commands
     public class Text : WECommand
     {
         string text;
-        public Text(int x, int y, int x2, int y2, TSPlayer plr, string text)
-            : base(x, y, x2, y2, plr)
+        public Text(int x, int y, int x2, int y2, TSPlayer plr, string text, string action)
+            : base(x, y, x2, y2, plr, action)
         {
             this.text = text;
         }
@@ -38,6 +38,7 @@ namespace WorldEdit.Commands
 
             ResetSection();
             plr.SendSuccessMessage("Set text.");
+            base.Execute();
         }
     }
 }

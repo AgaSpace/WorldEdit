@@ -7,8 +7,8 @@ namespace WorldEdit.Commands
 	{
 		private readonly int _degrees;
 
-		public Rotate(TSPlayer plr, int degrees)
-			: base(0, 0, 0, 0, plr)
+		public Rotate(TSPlayer plr, int degrees, string action)
+			: base(0, 0, 0, 0, plr, action)
 		{
 			_degrees = degrees;
 		}

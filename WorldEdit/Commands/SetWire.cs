@@ -10,8 +10,9 @@ namespace WorldEdit.Commands
 		private bool state;
 		private int wire;
 
-		public SetWire(int x, int y, int x2, int y2, MagicWand magicWand, TSPlayer plr, int wire, bool state, Expression expression)
-			: base(x, y, x2, y2, magicWand, plr)
+		public SetWire(int x, int y, int x2, int y2, MagicWand magicWand, TSPlayer plr, 
+			int wire, bool state, Expression expression, string action)
+			: base(x, y, x2, y2, magicWand, plr, action)
 		{
 			this.expression = expression ?? new TestExpression(new Test(t => true));
 			this.state = state;
@@ -25,6 +26,9 @@ namespace WorldEdit.Commands
 			int edits = 0;
 			switch (wire)
 			{
+				default:
+					return;
+
 				case 1:
 					for (int i = x; i <= x2; i++)
 					{
@@ -40,7 +44,7 @@ namespace WorldEdit.Commands
 					}
 					ResetSection();
 					plr.SendSuccessMessage("Set wire. ({0})", edits);
-					return;
+					break;
 				case 2:
 					for (int i = x; i <= x2; i++)
 					{
@@ -56,7 +60,7 @@ namespace WorldEdit.Commands
 					}
 					ResetSection();
 					plr.SendSuccessMessage("Set wire 2. ({0})", edits);
-					return;
+					break;
 				case 3:
 					for (int i = x; i <= x2; i++)
 					{
@@ -72,7 +76,7 @@ namespace WorldEdit.Commands
 					}
 					ResetSection();
 					plr.SendSuccessMessage("Set wire 3. ({0})", edits);
-					return;
+					break;
 				case 4:
 					for (int i = x; i <= x2; i++)
 					{
@@ -88,8 +92,9 @@ namespace WorldEdit.Commands
 					}
 					ResetSection();
 					plr.SendSuccessMessage("Set wire 4. ({0})", edits);
-					return;
+					break;
 			}
+			base.Execute();
 		}
 	}
 }

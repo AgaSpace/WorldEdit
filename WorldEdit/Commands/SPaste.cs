@@ -16,8 +16,10 @@ namespace WorldEdit.Commands
         private readonly bool wires;
         private readonly bool liquids;
 
-        public SPaste(int x, int y, TSPlayer plr, int alignment, Expression expression, bool tiles, bool tilePaints, bool emptyTiles, bool walls, bool wallPaints, bool wires, bool liquids)
-            : base(x, y, int.MaxValue, int.MaxValue, plr)
+        public SPaste(int x, int y, TSPlayer plr, int alignment, Expression expression, 
+            bool tiles, bool tilePaints, bool emptyTiles, bool walls, bool wallPaints, 
+            bool wires, bool liquids, string action)
+            : base(x, y, int.MaxValue, int.MaxValue, plr, action)
         {
             this.alignment = alignment;
             this.expression = expression;
@@ -131,6 +133,7 @@ namespace WorldEdit.Commands
             Tools.LoadWorldSection(data, x, y, false);
             ResetSection();
             plr.SendSuccessMessage("Pasted clipboard to selection.");
+            base.Execute();
         }
     }
 }

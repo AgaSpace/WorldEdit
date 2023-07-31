@@ -5,8 +5,8 @@ namespace WorldEdit.Commands
 {
 	public class FixSlopes : WECommand
 	{
-		public FixSlopes(int x, int y, int x2, int y2, TSPlayer plr)
-			: base(x, y, x2, y2, plr)
+		public FixSlopes(int x, int y, int x2, int y2, TSPlayer plr, string action)
+			: base(x, y, x2, y2, plr, action)
 		{
 		}
 
@@ -30,6 +30,7 @@ namespace WorldEdit.Commands
 			}
 			ResetSection();
 			plr.SendSuccessMessage("Fixed slopes. ({0})", edits);
+			base.Execute();
 		}
 	}
 }

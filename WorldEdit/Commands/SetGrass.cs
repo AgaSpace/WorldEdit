@@ -10,8 +10,9 @@ namespace WorldEdit.Commands
 		private Expression expression;
 		private string grass;
 
-		public SetGrass(int x, int y, int x2, int y2, MagicWand magicWand, TSPlayer plr, string grass, Expression expression)
-			: base(x, y, x2, y2, magicWand, plr)
+		public SetGrass(int x, int y, int x2, int y2, MagicWand magicWand, TSPlayer plr, 
+			string grass, Expression expression, string action)
+			: base(x, y, x2, y2, magicWand, plr, action)
 		{
 			this.expression = expression ?? new TestExpression(t => true);
 			this.grass = grass;
@@ -60,6 +61,7 @@ namespace WorldEdit.Commands
 			}
 			ResetSection();
 			plr.SendSuccessMessage("Set {1} grass. ({0})", edits, grass);
+			base.Execute();
 		}
 	}
 }

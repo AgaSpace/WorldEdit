@@ -12,8 +12,9 @@ namespace WorldEdit.Commands
 		private WallPlaceID wallType;
 		private int color;
 
-		public OutlineWall(int x, int y, int x2, int y2, MagicWand magicWand, TSPlayer plr, WallPlaceID wallType, int color, Expression expression)
-			: base(x, y, x2, y2, magicWand, plr)
+		public OutlineWall(int x, int y, int x2, int y2, MagicWand magicWand, TSPlayer plr, 
+			WallPlaceID wallType, int color, Expression expression, string action)
+			: base(x, y, x2, y2, magicWand, plr, action)
 		{
 			this.wallType = wallType;
 			this.color = color;
@@ -107,6 +108,7 @@ namespace WorldEdit.Commands
 
 			ResetSection();
 			plr.SendSuccessMessage($"Outlined with {wallType.name}. ({edits})");
+			base.Execute();
 		}
 	}
 }

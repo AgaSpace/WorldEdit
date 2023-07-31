@@ -8,8 +8,8 @@ namespace WorldEdit.Commands
 		private string biome1;
 		private string biome2;
 
-		public Biome(int x, int y, int x2, int y2, TSPlayer plr, string biome1, string biome2)
-			: base(x, y, x2, y2, plr)
+		public Biome(int x, int y, int x2, int y2, TSPlayer plr, string action, string biome1, string biome2)
+			: base(x, y, x2, y2, plr, action)
 		{
 			this.biome1 = biome1;
 			this.biome2 = biome2;
@@ -35,6 +35,7 @@ namespace WorldEdit.Commands
 				ResetSection();
 			}
 			plr.SendSuccessMessage("Converted biomes. ({0})", edits);
+			base.Execute();
 		}
 	}
 }

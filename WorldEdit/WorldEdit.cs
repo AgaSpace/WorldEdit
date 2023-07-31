@@ -21,6 +21,7 @@ using TShockAPI.DB;
 using WorldEdit.Commands;
 using WorldEdit.Expressions;
 using WorldEdit.Extensions;
+using WorldEdit.Logger;
 using Microsoft.VisualBasic.FileIO;
 using System.Diagnostics;
 
@@ -38,6 +39,7 @@ namespace WorldEdit
 		public static Dictionary<string, Commands.Biomes.Biome> Biomes = new Dictionary<string, Commands.Biomes.Biome>();
 		public static Dictionary<string, int> Colors = new Dictionary<string, int>();
 		public static IDbConnection Database;
+		public static ActionsLogDataBase Logger;
 		public static Dictionary<string, Selection> Selections = new Dictionary<string, Selection>();
 		public static Dictionary<string, TilePlaceID> Tiles = new();
 		public static Dictionary<string, WallPlaceID> Walls = new();
@@ -165,6 +167,13 @@ namespace WorldEdit
                                     }
                                     info.SavedExpression = null;
                                 }
+								else if (info.Point == 5)
+                                {
+									IEnumerable<string> actions = Logger.Log(x, y, Main.worldID).Select(i => i.ToString());
+									TShock.Players[e.Msg.whoAmI].SendInfoMessage($"WorldEdit Action Logs ({actions.Count()})");
+									foreach (string action in actions)
+										TShock.Players[e.Msg.whoAmI].SendMessage(action, Color.Cyan);
+								}
                                 info.Point = 0;
 								e.Handled = true;
 								TShock.Players[e.Msg.whoAmI].SendTileSquare(x, y, 3);
@@ -281,6 +290,13 @@ namespace WorldEdit
 											TShock.Players[e.Msg.whoAmI].SendInfoMessage($"Set region points to [{data.X}, {data.Y}] and [{data.X2}, {data.Y2}]");
 										}
 									}
+									else if (data.Point == 5)
+									{
+										IEnumerable<string> actions = Logger.Log(startX, startY, Main.worldID).Select(i => i.ToString());
+										TShock.Players[e.Msg.whoAmI].SendInfoMessage($"WorldEdit Action Logs ({actions.Count()})");
+										foreach (string action in actions)
+											TShock.Players[e.Msg.whoAmI].SendMessage(action, Color.Cyan);
+									}
 								}
 								else
 								{
@@ -315,6 +331,13 @@ namespace WorldEdit
 											data.Y2 = curReg.Area.Bottom;
 											TShock.Players[e.Msg.whoAmI].SendInfoMessage($"Set region points to [{data.X}, {data.Y}] and [{data.X2}, {data.Y2}]");
 										}
+									}
+									else if (data.Point == 5)
+									{
+										IEnumerable<string> actions = Logger.Log(startX, startY, Main.worldID).Select(i => i.ToString());
+										TShock.Players[e.Msg.whoAmI].SendInfoMessage($"WorldEdit Action Logs ({actions.Count()})");
+										foreach (string action in actions)
+											TShock.Players[e.Msg.whoAmI].SendMessage(action, Color.Cyan);
 									}
 								}
 
@@ -578,6 +601,10 @@ namespace WorldEdit
 			{
 				HelpText = "Sets actuators in the worldedit selection."
 			});
+			TShockAPI.Commands.ChatCommands.Add(new Command("worldedit.logger", GetLogs, "/log", "/whistory")
+			{
+				HelpText = "Shows the history on the selected block."
+			});
 			#endregion
 			#region Database
 			switch (TShock.Config.Settings.StorageType.ToLowerInvariant())
@@ -631,10 +658,13 @@ namespace WorldEdit
 				new SqlColumn("Account", MySqlDbType.Int32) { Primary = true },
 				new SqlColumn("RedoLevel", MySqlDbType.Int32),
 				new SqlColumn("UndoLevel", MySqlDbType.Int32)));
+
+			Logger = new ActionsLogDataBase(Database, sqlcreator);
+
 			#endregion
 
-            #region Biomes
-            Biomes.Add("crimson", new Commands.Biomes.Crimson());
+			#region Biomes
+			Biomes.Add("crimson", new Commands.Biomes.Crimson());
             Biomes.Add("corruption", new Commands.Biomes.Corruption());
             Biomes.Add("hallow", new Commands.Biomes.Hallow());
             Biomes.Add("jungle", new Commands.Biomes.Jungle());
@@ -1002,7 +1032,7 @@ namespace WorldEdit
 					}
 			}
 
-			_commandQueue.Add(new Activate(info.X, info.Y, info.X2, info.Y2, e.Player, action));
+			_commandQueue.Add(new Activate(info.X, info.Y, info.X2, info.Y2, e.Player, e.Message, action));
 		}
 
         private void Actuator(CommandArgs e)
@@ -1031,7 +1061,7 @@ namespace WorldEdit
                 }
             }
 
-            _commandQueue.Add(new Actuator(info.X, info.Y, info.X2, info.Y2, info.MagicWand, e.Player, expression, remove));
+            _commandQueue.Add(new Actuator(info.X, info.Y, info.X2, info.Y2, info.MagicWand, e.Player, e.Message, expression, remove));
         }
 
 		private void All(CommandArgs e)
@@ -1062,7 +1092,7 @@ namespace WorldEdit
 			if (!Biomes.ContainsKey(biome1) || !Biomes.ContainsKey(biome2))
 				e.Player.SendErrorMessage("Invalid biome.");
 			else
-				_commandQueue.Add(new Biome(info.X, info.Y, info.X2, info.Y2, e.Player, biome1, biome2));
+				_commandQueue.Add(new Biome(info.X, info.Y, info.X2, info.Y2, e.Player, e.Message, biome1, biome2));
 		}
 
 		private void Copy(CommandArgs e)
@@ -1071,7 +1101,7 @@ namespace WorldEdit
 			if (info.X == -1 || info.Y == -1 || info.X2 == -1 || info.Y2 == -1)
 				e.Player.SendErrorMessage("Invalid selection!");
 			else
-				_commandQueue.Add(new Copy(info.X, info.Y, info.X2, info.Y2, e.Player, null));
+				_commandQueue.Add(new Copy(info.X, info.Y, info.X2, info.Y2, e.Player, null, e.Message));
 		}
 
 		private void Cut(CommandArgs e)
@@ -1085,7 +1115,7 @@ namespace WorldEdit
 			if (info.X == -1 || info.Y == -1 || info.X2 == -1 || info.Y2 == -1)
 				e.Player.SendErrorMessage("Invalid selection.");
 			else
-				_commandQueue.Add(new Cut(info.X, info.Y, info.X2, info.Y2, e.Player));
+				_commandQueue.Add(new Cut(info.X, info.Y, info.X2, info.Y2, e.Player, e.Message));
 		}
 
 		private void Drain(CommandArgs e)
@@ -1094,7 +1124,7 @@ namespace WorldEdit
 			if (info.X == -1 || info.Y == -1 || info.X2 == -1 || info.Y2 == -1)
 				e.Player.SendErrorMessage("Invalid selection.");
 			else
-				_commandQueue.Add(new Drain(info.X, info.Y, info.X2, info.Y2, e.Player));
+				_commandQueue.Add(new Drain(info.X, info.Y, info.X2, info.Y2, e.Player, e.Message));
         }
 
         private void Fill(CommandArgs e)
@@ -1134,7 +1164,7 @@ namespace WorldEdit
             }
             else { Parser.TryParseTree(new string[] { "=>", "!t" }, out expression); }
 
-            _commandQueue.Add(new Set(info.X, info.Y, info.X2, info.Y2, info.MagicWand, e.Player, tiles[0], expression));
+            _commandQueue.Add(new Set(info.X, info.Y, info.X2, info.Y2, info.MagicWand, e.Player, tiles[0], expression, e.Message));
         }
 
         private void FillWall(CommandArgs e)
@@ -1174,7 +1204,8 @@ namespace WorldEdit
             }
             else { Parser.TryParseTree(new string[] { "=>", "!w" }, out expression); }
 
-            _commandQueue.Add(new SetWall(info.X, info.Y, info.X2, info.Y2, info.MagicWand, e.Player, walls[0], expression));
+            _commandQueue.Add(new SetWall(info.X, info.Y, info.X2, info.Y2, 
+				info.MagicWand, e.Player, walls[0], expression, e.Message));
         }
 
         private void FixGhosts(CommandArgs e)
@@ -1183,7 +1214,7 @@ namespace WorldEdit
 			if (info.X == -1 || info.Y == -1 || info.X2 == -1 || info.Y2 == -1)
 				e.Player.SendErrorMessage("Invalid selection!");
 			else
-				_commandQueue.Add(new FixGhosts(info.X, info.Y, info.X2, info.Y2, e.Player));
+				_commandQueue.Add(new FixGhosts(info.X, info.Y, info.X2, info.Y2, e.Player, e.Message));
 		}
 
 		private void FixGrass(CommandArgs e)
@@ -1192,7 +1223,7 @@ namespace WorldEdit
 			if (info.X == -1 || info.Y == -1 || info.X2 == -1 || info.Y2 == -1)
 				e.Player.SendErrorMessage("Invalid selection!");
 			else
-				_commandQueue.Add(new FixGrass(info.X, info.Y, info.X2, info.Y2, e.Player));
+				_commandQueue.Add(new FixGrass(info.X, info.Y, info.X2, info.Y2, e.Player, e.Message));
 		}
 
 		private void FixHalves(CommandArgs e)
@@ -1201,7 +1232,7 @@ namespace WorldEdit
 			if (info.X == -1 || info.Y == -1 || info.X2 == -1 || info.Y2 == -1)
 				e.Player.SendErrorMessage("Invalid selection!");
 			else
-				_commandQueue.Add(new FixHalves(info.X, info.Y, info.X2, info.Y2, e.Player));
+				_commandQueue.Add(new FixHalves(info.X, info.Y, info.X2, info.Y2, e.Player, e.Message));
 		}
 
 		private void FixSlopes(CommandArgs e)
@@ -1210,7 +1241,7 @@ namespace WorldEdit
 			if (info.X == -1 || info.Y == -1 || info.X2 == -1 || info.Y2 == -1)
 				e.Player.SendErrorMessage("Invalid selection!");
 			else
-				_commandQueue.Add(new FixSlopes(info.X, info.Y, info.X2, info.Y2, e.Player));
+				_commandQueue.Add(new FixSlopes(info.X, info.Y, info.X2, info.Y2, e.Player, e.Message));
 		}
 
 		private void Flood(CommandArgs e)
@@ -1235,7 +1266,7 @@ namespace WorldEdit
 			PlayerInfo info = e.Player.GetPlayerInfo();
 			if (info.X == -1 || info.Y == -1 || info.X2 == -1 || info.Y2 == -1)
 				e.Player.SendErrorMessage("Invalid selection!");
-			_commandQueue.Add(new Flood(info.X, info.Y, info.X2, info.Y2, info.MagicWand, e.Player, liquid));
+			_commandQueue.Add(new Flood(info.X, info.Y, info.X2, info.Y2, info.MagicWand, e.Player, liquid, e.Message));
 		}
 
 		private void Flip(CommandArgs e)
@@ -1265,7 +1296,7 @@ namespace WorldEdit
 						return;
 					}
 				}
-				_commandQueue.Add(new Flip(e.Player, flipX, flipY));
+				_commandQueue.Add(new Flip(e.Player, flipX, flipY, e.Message));
 			}
 		}
 
@@ -1362,7 +1393,7 @@ namespace WorldEdit
             PlayerInfo info = e.Player.GetPlayerInfo();
             if (info.X == -1 || info.Y == -1 || info.X2 == -1 || info.Y2 == -1)
                 e.Player.SendErrorMessage("Invalid selection!");
-            _commandQueue.Add(new KillEmpty(info.X, info.Y, info.X2, info.Y2, e.Player, action));
+            _commandQueue.Add(new KillEmpty(info.X, info.Y, info.X2, info.Y2, e.Player, e.Message, action));
         }
 
         private void Move(CommandArgs e)
@@ -1397,7 +1428,7 @@ namespace WorldEdit
                 }
             }
 
-            _commandQueue.Add(new Move(info.X, info.Y, info.X2, info.Y2, info.MagicWand, e.Player, down, right, expression));
+            _commandQueue.Add(new Move(info.X, info.Y, info.X2, info.Y2, info.MagicWand, e.Player, down, right, expression, e.Message));
         }
 
         private void Mow(CommandArgs e)
@@ -1406,7 +1437,7 @@ namespace WorldEdit
 			if (info.X == -1 || info.Y == -1 || info.X2 == -1 || info.Y2 == -1)
 				e.Player.SendErrorMessage("Invalid selection!");
 			else
-				_commandQueue.Add(new Mow(info.X, info.Y, info.X2, info.Y2, e.Player));
+				_commandQueue.Add(new Mow(info.X, info.Y, info.X2, info.Y2, e.Player, e.Message));
 		}
 
 		private void Near(CommandArgs e)
@@ -1482,7 +1513,7 @@ namespace WorldEdit
 							return;
 						}
 					}
-					_commandQueue.Add(new Outline(info.X, info.Y, info.X2, info.Y2, info.MagicWand, e.Player, tiles[0], colors[0], state, expression));
+					_commandQueue.Add(new Outline(info.X, info.Y, info.X2, info.Y2, info.MagicWand, e.Player, tiles[0], colors[0], state, expression, e.Message));
 				}
 			}
 		}
@@ -1524,7 +1555,7 @@ namespace WorldEdit
 							return;
 						}
 					}
-					_commandQueue.Add(new OutlineWall(info.X, info.Y, info.X2, info.Y2, info.MagicWand, e.Player, walls[0], colors[0], expression));
+					_commandQueue.Add(new OutlineWall(info.X, info.Y, info.X2, info.Y2, info.MagicWand, e.Player, walls[0], colors[0], expression, e.Message));
 				}
 			}
 		}
@@ -1567,7 +1598,7 @@ namespace WorldEdit
 				}
 			}
 
-			_commandQueue.Add(new Coat(info.X, info.Y, info.X2, info.Y2, info.MagicWand, e.Player, kind.Value, walls, expression));
+			_commandQueue.Add(new Coat(info.X, info.Y, info.X2, info.Y2, info.MagicWand, e.Player, kind.Value, walls, expression, e.Message));
 		}
 
 		private void Coat(CommandArgs e)
@@ -1610,7 +1641,7 @@ namespace WorldEdit
 						return;
 					}
 				}
-				_commandQueue.Add(new Paint(info.X, info.Y, info.X2, info.Y2, info.MagicWand, e.Player, colors[0], expression));
+				_commandQueue.Add(new Paint(info.X, info.Y, info.X2, info.Y2, info.MagicWand, e.Player, colors[0], expression, e.Message));
 			}
 		}
 
@@ -1644,7 +1675,7 @@ namespace WorldEdit
 						return;
 					}
 				}
-				_commandQueue.Add(new PaintWall(info.X, info.Y, info.X2, info.Y2, info.MagicWand, e.Player, colors[0], expression));
+				_commandQueue.Add(new PaintWall(info.X, info.Y, info.X2, info.Y2, info.MagicWand, e.Player, colors[0], expression, e.Message));
 			}
 		}
 
@@ -1708,7 +1739,9 @@ namespace WorldEdit
                         }
                     }
                 }
-                _commandQueue.Add(new Paste(info.X, info.Y, e.Player, Tools.GetClipboardPath(e.Player.Account.ID), alignment, expression, mode_MainBlocks, true));
+                _commandQueue.Add(new Paste(info.X, info.Y, e.Player, 
+					Tools.GetClipboardPath(e.Player.Account.ID), alignment, 
+					expression, mode_MainBlocks, true, e.Message));
 			}
         }
 
@@ -1789,7 +1822,8 @@ namespace WorldEdit
                         }
                     }
                 }
-                _commandQueue.Add(new SPaste(info.X, info.Y, e.Player, alignment, expression, tiles, tilePaints, emptyTiles, walls, wallPaints, wires, liquids));
+                _commandQueue.Add(new SPaste(info.X, info.Y, e.Player, alignment,
+					expression, tiles, tilePaints, emptyTiles, walls, wallPaints, wires, liquids, e.Message));
             }
         }
 
@@ -1919,7 +1953,7 @@ namespace WorldEdit
 					ID = User.ID;
 				}
 			}
-			_commandQueue.Add(new Redo(e.Player, ID, steps));
+			_commandQueue.Add(new Redo(e.Player, ID, steps, e.Message));
 		}
 
 		private void RegionCmd(CommandArgs e)
@@ -2001,7 +2035,8 @@ namespace WorldEdit
                 }
             }
 
-            _commandQueue.Add(new Replace(info.X, info.Y, info.X2, info.Y2, e.Player, tilesFrom[0], tilesTo[0], expression));
+            _commandQueue.Add(new Replace(info.X, info.Y, info.X2, info.Y2, 
+				e.Player, tilesFrom[0], tilesTo[0], expression, e.Message));
         }
 
         private void ReplaceWall(CommandArgs e)
@@ -2053,7 +2088,8 @@ namespace WorldEdit
                 }
             }
 
-            _commandQueue.Add(new ReplaceWall(info.X, info.Y, info.X2, info.Y2, e.Player, wallsFrom[0], wallsTo[0], expression));
+            _commandQueue.Add(new ReplaceWall(info.X, info.Y, info.X2, info.Y2, 
+				e.Player, wallsFrom[0], wallsTo[0], expression, e.Message));
         }
 
         private void Resize(CommandArgs e)
@@ -2138,7 +2174,7 @@ namespace WorldEdit
 			if (!int.TryParse(e.Parameters[0], out degrees) || degrees % 90 != 0)
 				e.Player.SendErrorMessage("Invalid angle '{0}'!", e.Parameters[0]);
 			else
-				_commandQueue.Add(new Rotate(e.Player, degrees));
+				_commandQueue.Add(new Rotate(e.Player, degrees, e.Message));
 		}
 
 		private void Scale(CommandArgs e)
@@ -2163,7 +2199,7 @@ namespace WorldEdit
 				e.Player.SendErrorMessage("Invalid amount!");
 				return;
 			}
-			_commandQueue.Add(new Scale(e.Player, (e.Parameters[0] == "+"), scale));
+			_commandQueue.Add(new Scale(e.Player, (e.Parameters[0] == "+"), scale, e.Message));
 		}
 
 		private void Schematic(CommandArgs e)
@@ -2392,7 +2428,7 @@ namespace WorldEdit
 							FileSystem.DeleteFile(path, UIOption.OnlyErrorDialogs, RecycleOption.SendToRecycleBin);
 						}
 
-                        _commandQueue.Add(new Copy(info.X, info.Y, info.X2, info.Y2, e.Player, path));
+                        _commandQueue.Add(new Copy(info.X, info.Y, info.X2, info.Y2, e.Player, path, e.Message));
                     }
                     return;
                 case "p":
@@ -2467,7 +2503,8 @@ namespace WorldEdit
                                     }
                                 }
                             }
-                            _commandQueue.Add(new Paste(info.X, info.Y, e.Player, path, alignment, expression, mode_MainBlocks, false));
+                            _commandQueue.Add(new Paste(info.X, info.Y, e.Player, path, 
+								alignment, expression, mode_MainBlocks, false, e.Message));
                         }
                     }
                     return;
@@ -2544,7 +2581,8 @@ namespace WorldEdit
 						return;
 					}
 				}
-				_commandQueue.Add(new Set(info.X, info.Y, info.X2, info.Y2, info.MagicWand, e.Player, tiles[0], expression));
+				_commandQueue.Add(new Set(info.X, info.Y, info.X2, info.Y2, 
+					info.MagicWand, e.Player, tiles[0], expression, e.Message));
 			}
 		}
 
@@ -2578,7 +2616,8 @@ namespace WorldEdit
 						return;
 					}
 				}
-				_commandQueue.Add(new SetWall(info.X, info.Y, info.X2, info.Y2, info.MagicWand, e.Player, walls[0], expression));
+				_commandQueue.Add(new SetWall(info.X, info.Y, info.X2, info.Y2, 
+					info.MagicWand, e.Player, walls[0], expression, e.Message));
 			}
 		}
 
@@ -2612,7 +2651,7 @@ namespace WorldEdit
 				}
 			}
 
-			_commandQueue.Add(new SetGrass(info.X, info.Y, info.X2, info.Y2, info.MagicWand, e.Player, e.Parameters[0].ToLowerInvariant(), expression));
+			_commandQueue.Add(new SetGrass(info.X, info.Y, info.X2, info.Y2, info.MagicWand, e.Player, e.Parameters[0].ToLowerInvariant(), expression, e.Message));
 		}
 
 		private void SetWire(CommandArgs e)
@@ -2654,7 +2693,7 @@ namespace WorldEdit
 					return;
 				}
 			}
-			_commandQueue.Add(new SetWire(info.X, info.Y, info.X2, info.Y2, info.MagicWand, e.Player, wire, state, expression));
+			_commandQueue.Add(new SetWire(info.X, info.Y, info.X2, info.Y2, info.MagicWand, e.Player, wire, state, expression, e.Message));
 		}
 
         private void Shape(CommandArgs e)
@@ -2887,7 +2926,8 @@ namespace WorldEdit
                 }
             }
             
-            _commandQueue.Add(new Shape(info.X, info.Y, info.X2, info.Y2, info.MagicWand, e.Player, type, rotateType, flipType, materialType, filled, expression));
+            _commandQueue.Add(new Shape(info.X, info.Y, info.X2, info.Y2, info.MagicWand, 
+				e.Player, e.Message, type, rotateType, flipType, materialType, filled, expression));
         }
 
         private void Size(CommandArgs e)
@@ -2987,7 +3027,7 @@ namespace WorldEdit
 						return;
 					}
 				}
-				_commandQueue.Add(new Slope(info.X, info.Y, info.X2, info.Y2, info.MagicWand, e.Player, slope, expression));
+				_commandQueue.Add(new Slope(info.X, info.Y, info.X2, info.Y2, info.MagicWand, e.Player, slope, expression, e.Message));
 			}
 		}
 
@@ -3020,7 +3060,7 @@ namespace WorldEdit
 				}
 			}
 
-			_commandQueue.Add(new SlopeDelete(info.X, info.Y, info.X2, info.Y2, info.MagicWand, e.Player, slope, expression));
+			_commandQueue.Add(new SlopeDelete(info.X, info.Y, info.X2, info.Y2, info.MagicWand, e.Player, slope, expression, e.Message));
 		}
 
 		private void Smooth(CommandArgs e)
@@ -3040,7 +3080,7 @@ namespace WorldEdit
 				return;
 			}
 
-			_commandQueue.Add(new Smooth(info.X, info.Y, info.X2, info.Y2, info.MagicWand, e.Player, expression));
+			_commandQueue.Add(new Smooth(info.X, info.Y, info.X2, info.Y2, info.MagicWand, e.Player, expression, e.Message));
 		}
 
 		private void Inactive(CommandArgs e)
@@ -3077,7 +3117,7 @@ namespace WorldEdit
 					return;
 				}
 			}
-			_commandQueue.Add(new Inactive(info.X, info.Y, info.X2, info.Y2, info.MagicWand, e.Player, mode, expression));
+			_commandQueue.Add(new Inactive(info.X, info.Y, info.X2, info.Y2, info.MagicWand, e.Player, mode, expression, e.Message));
 		}
 
 		private void Shift(CommandArgs e)
@@ -3152,7 +3192,8 @@ namespace WorldEdit
                 return;
             }
 
-            _commandQueue.Add(new Text(info.X, info.Y, info.X2, info.Y2, e.Player, e.Message.Substring(5).TrimStart()));
+            _commandQueue.Add(new Text(info.X, info.Y, info.X2, info.Y2, 
+				e.Player, e.Message.Substring(5).TrimStart(), e.Message));
         }
 
 		private void Undo(CommandArgs e)
@@ -3187,7 +3228,33 @@ namespace WorldEdit
 				}
 				ID = User.ID;
 			}
-			_commandQueue.Add(new Undo(e.Player, ID, steps));
+			_commandQueue.Add(new Undo(e.Player, ID, steps, e.Message));
 		}
+
+		private void GetLogs(CommandArgs e)
+        {
+			if (e.Parameters.Count == 0)
+            {
+				e.Player.GetPlayerInfo().Point = 5;
+				e.Player.SendInfoMessage("Hit any block to get the story.");
+            }
+			else if (e.Parameters.Count == 2)
+            {
+				if (!int.TryParse(e.Parameters[0], out int X))
+                {
+					e.Player.SendErrorMessage("Failed to get the X coordinate.");
+					return;
+                }
+				if (!int.TryParse(e.Parameters[1], out int Y))
+                {
+					e.Player.SendErrorMessage("Failed to get the Y coordinate.");
+					return;
+                }
+				IEnumerable<string> actions = Logger.Log(X, Y, Main.worldID).Select(i => i.ToString());
+				e.Player.SendInfoMessage($"WorldEdit Action Logs ({actions.Count()})");
+				foreach (string action in actions)
+					e.Player.SendMessage(action, Color.Cyan);
+			}
+        }
 	}
 }

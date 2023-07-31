@@ -8,8 +8,9 @@ namespace WorldEdit.Commands
 	{
 		private Expression expression;
 
-		public Smooth(int x, int y, int x2, int y2, MagicWand magicWand, TSPlayer plr, Expression expression)
-			: base(x, y, x2, y2, magicWand, plr)
+		public Smooth(int x, int y, int x2, int y2, MagicWand magicWand, 
+			TSPlayer plr, Expression expression, string action)
+			: base(x, y, x2, y2, magicWand, plr, action)
 		{
 			this.expression = expression ?? new TestExpression(new Test(t => true));
 		}
@@ -74,6 +75,7 @@ namespace WorldEdit.Commands
 			}
 			ResetSection();
 			plr.SendSuccessMessage("Smoothed area. ({0})", edits);
+			base.Execute();
 		}
 	}
 }

@@ -13,8 +13,9 @@ namespace WorldEdit.Commands
 		private int color;
 		private bool active;
 
-		public Outline(int x, int y, int x2, int y2, MagicWand magicWand, TSPlayer plr, TilePlaceID tileType, int color, bool active, Expression expression)
-			: base(x, y, x2, y2, magicWand, plr)
+		public Outline(int x, int y, int x2, int y2, MagicWand magicWand, TSPlayer plr, 
+			TilePlaceID tileType, int color, bool active, Expression expression, string action)
+			: base(x, y, x2, y2, magicWand, plr, action)
 		{
 			this.tileType = tileType;
 			this.color = color;
@@ -110,6 +111,7 @@ namespace WorldEdit.Commands
 
 			ResetSection();
 			plr.SendSuccessMessage($"Outlined with {tileType.Name}. ({edits})");
+			base.Execute();
 		}
 	}
 }

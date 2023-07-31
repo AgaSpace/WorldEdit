@@ -7,8 +7,8 @@ namespace WorldEdit.Commands
 		private readonly bool flipX;
 		private readonly bool flipY;
 
-		public Flip(TSPlayer plr, bool flipX, bool flipY)
-			: base(0, 0, 0, 0, plr)
+		public Flip(TSPlayer plr, bool flipX, bool flipY, string action)
+			: base(0, 0, 0, 0, plr, action)
 		{
 			this.flipX = flipX;
 			this.flipY = flipY;
@@ -76,6 +76,7 @@ namespace WorldEdit.Commands
 			}
 
 			plr.SendSuccessMessage("Flipped clipboard.");
+			base.Execute();
 		}
 	}
 }

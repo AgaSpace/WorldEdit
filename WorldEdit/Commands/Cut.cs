@@ -7,8 +7,8 @@ namespace WorldEdit.Commands
 {
 	public class Cut : WECommand
 	{
-		public Cut(int x, int y, int x2, int y2, TSPlayer plr)
-			: base(x, y, x2, y2, plr)
+		public Cut(int x, int y, int x2, int y2, TSPlayer plr, string action)
+			: base(x, y, x2, y2, plr, action)
 		{
 		}
 
@@ -51,6 +51,7 @@ namespace WorldEdit.Commands
 
 			ResetSection();
 			plr.SendSuccessMessage("Cut selection. ({0})", (x2 - x + 1) * (y2 - y + 1));
+			base.Execute();
 		}
 	}
 }

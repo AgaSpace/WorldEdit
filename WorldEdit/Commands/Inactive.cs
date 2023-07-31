@@ -9,8 +9,9 @@ namespace WorldEdit.Commands
         private Expression expression;
         private int inactiveType;
 
-        public Inactive(int x, int y, int x2, int y2, MagicWand magicWand, TSPlayer plr, int inacType, Expression expression)
-            : base(x, y, x2, y2, magicWand, plr)
+        public Inactive(int x, int y, int x2, int y2, MagicWand magicWand, TSPlayer plr, 
+            int inacType, Expression expression, string action)
+            : base(x, y, x2, y2, magicWand, plr, action)
         {
             this.inactiveType = inacType;
             this.expression = expression ?? new TestExpression(new Test(t => true));
@@ -23,6 +24,9 @@ namespace WorldEdit.Commands
             int edits = 0;
             switch (inactiveType)
             {
+                default:
+                    return;
+
                 case 0:
                     for (int i = x; i <= x2; i++)
                     {
@@ -72,6 +76,7 @@ namespace WorldEdit.Commands
                     plr.SendSuccessMessage("Reversed tiles'	inactive status. ({0})", edits);
                     break;
             }
+            base.Execute();
         }
     }
 }

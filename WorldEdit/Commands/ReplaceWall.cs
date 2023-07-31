@@ -10,8 +10,9 @@ namespace WorldEdit.Commands
         private WallPlaceID from;
         private WallPlaceID to;
 
-        public ReplaceWall(int x, int y, int x2, int y2, TSPlayer plr, WallPlaceID from, WallPlaceID to, Expression expression)
-            : base(x, y, x2, y2, plr)
+        public ReplaceWall(int x, int y, int x2, int y2, TSPlayer plr, WallPlaceID from, 
+            WallPlaceID to, Expression expression, string action)
+            : base(x, y, x2, y2, plr, action)
         {
             this.from = from;
             this.to = to;
@@ -37,6 +38,7 @@ namespace WorldEdit.Commands
             }
             ResetSection();
             plr.SendSuccessMessage($"Replaced {from.name} with {to.name}. ({edits})");
+            base.Execute();
         }
     }
 }

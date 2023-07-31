@@ -5,8 +5,8 @@ namespace WorldEdit.Commands
 {
 	public class FixHalves : WECommand
 	{
-		public FixHalves(int x, int y, int x2, int y2, TSPlayer plr)
-			: base(x, y, x2, y2, plr)
+		public FixHalves(int x, int y, int x2, int y2, TSPlayer plr, string action)
+			: base(x, y, x2, y2, plr, action)
 		{
 		}
 
@@ -29,6 +29,7 @@ namespace WorldEdit.Commands
 			}
 			ResetSection();
 			plr.SendSuccessMessage("Fixed half blocks. ({0})", edits);
+			base.Execute();
 		}
 	}
 }

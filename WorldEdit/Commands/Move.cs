@@ -12,8 +12,9 @@ namespace WorldEdit.Commands
         int right;
         Expression expression;
 
-        public Move(int x, int y, int x2, int y2, MagicWand magicWand, TSPlayer plr, int down, int right, Expression expression)
-            : base(x, y, x2, y2, magicWand, plr)
+        public Move(int x, int y, int x2, int y2, MagicWand magicWand, 
+            TSPlayer plr, int down, int right, Expression expression, string action)
+            : base(x, y, x2, y2, magicWand, plr, action)
         {
             this.down = down;
             this.right = right;
@@ -80,6 +81,7 @@ namespace WorldEdit.Commands
             info.Y2 = newY2;
 
             plr.SendInfoMessage("Moved tiles ({0}).", edits);
+            base.Execute();
         }
     }
 }

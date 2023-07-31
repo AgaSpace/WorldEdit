@@ -10,8 +10,9 @@ namespace WorldEdit.Commands
         private TilePlaceID from;
         private TilePlaceID to;
 
-        public Replace(int x, int y, int x2, int y2, TSPlayer plr, TilePlaceID from, TilePlaceID to, Expression expression)
-            : base(x, y, x2, y2, plr)
+        public Replace(int x, int y, int x2, int y2, TSPlayer plr, TilePlaceID from, 
+            TilePlaceID to, Expression expression, string action)
+            : base(x, y, x2, y2, plr, action)
         {
             this.from = from;
             this.to = to;
@@ -37,6 +38,7 @@ namespace WorldEdit.Commands
             }
             ResetSection();
             plr.SendSuccessMessage($"Replaced {from.Name} with {to.Name}. ({edits})");
+            base.Execute();
         }
     }
 }

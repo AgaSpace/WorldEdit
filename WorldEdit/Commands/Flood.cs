@@ -7,8 +7,8 @@ namespace WorldEdit.Commands
 	{
 		private int liquid;
 
-		public Flood(int x, int y, int x2, int y2, MagicWand magicWand, TSPlayer plr, int liquid)
-			: base(x, y, x2, y2, magicWand, plr)
+		public Flood(int x, int y, int x2, int y2, MagicWand magicWand, TSPlayer plr, int liquid, string action)
+			: base(x, y, x2, y2, magicWand, plr, action)
 		{
 			this.liquid = liquid;
 		}
@@ -33,6 +33,7 @@ namespace WorldEdit.Commands
 			}
 			ResetSection();
 			plr.SendSuccessMessage("Flooded area. ({0})", edits);
+			base.Execute();
 		}
 	}
 }

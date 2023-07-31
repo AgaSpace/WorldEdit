@@ -9,8 +9,9 @@ namespace WorldEdit.Commands
 		private Expression expression;
 		private WallPlaceID wallType;
 
-		public SetWall(int x, int y, int x2, int y2, MagicWand magicWand, TSPlayer plr, WallPlaceID wallType, Expression expression)
-			: base(x, y, x2, y2, magicWand, plr)
+		public SetWall(int x, int y, int x2, int y2, MagicWand magicWand, 
+			TSPlayer plr, WallPlaceID wallType, Expression expression, string action)
+			: base(x, y, x2, y2, magicWand, plr, action)
 		{
 			this.expression = expression ?? new TestExpression(new Test(t => true));
 			this.wallType = wallType;
@@ -36,6 +37,7 @@ namespace WorldEdit.Commands
 			ResetSection();
 
 			plr.SendSuccessMessage($"Set walls to {wallType.name}. ({edits})");
+			base.Execute();
 		}
 	}
 }

@@ -596,7 +596,8 @@ namespace WorldEdit
                 Math.Min(size.Y + size.Height - 1, Main.maxTilesY - 1), undoPath);
             LoadWorldSection(redoPath);
 			File.Delete(redoPath);
-			return true;
+            WorldEdit.Logger.Log(command.plr.Account, command, size.Left, size.Top, size.Right, size.Bottom);
+            return true;
 		}
 
 		public static void ResetSection(int x, int y, int x2, int y2)
@@ -714,8 +715,9 @@ namespace WorldEdit
             SaveWorldSection(Math.Max(0, size.X), Math.Max(0, size.Y),
                 Math.Min(size.X + size.Width - 1, Main.maxTilesX - 1),
                 Math.Min(size.Y + size.Height - 1, Main.maxTilesY - 1), redoPath);
-			LoadWorldSection(undoPath);
+            LoadWorldSection(undoPath);
 			File.Delete(undoPath);
+            WorldEdit.Logger.Log(command.plr.Account, command, size.Left, size.Top, size.Right, size.Bottom);
 			return true;
 		}
 

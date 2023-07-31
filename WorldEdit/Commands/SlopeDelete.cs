@@ -9,8 +9,9 @@ namespace WorldEdit.Commands
 		private Expression expression;
 		private byte slope;
 
-		public SlopeDelete(int x, int y, int x2, int y2, MagicWand magicWand, TSPlayer plr, int slope, Expression expression)
-			: base(x, y, x2, y2, magicWand, plr)
+		public SlopeDelete(int x, int y, int x2, int y2, MagicWand magicWand,
+			TSPlayer plr, int slope, Expression expression, string action)
+			: base(x, y, x2, y2, magicWand, plr, action)
 		{
 			this.slope = (byte)slope;
 			this.expression = expression ?? new TestExpression(new Test(t => true));
@@ -74,6 +75,7 @@ namespace WorldEdit.Commands
 			}
 			ResetSection();
 			plr.SendSuccessMessage("Removed slopes. ({0})", edits);
+			base.Execute();
 		}
 	}
 }

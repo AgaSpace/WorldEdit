@@ -5,8 +5,8 @@ namespace WorldEdit.Commands
 {
 	public class Drain : WECommand
 	{
-		public Drain(int x, int y, int x2, int y2, TSPlayer plr)
-			: base(x, y, x2, y2, plr)
+		public Drain(int x, int y, int x2, int y2, TSPlayer plr, string action)
+			: base(x, y, x2, y2, plr, action)
 		{
 		}
 
@@ -30,6 +30,7 @@ namespace WorldEdit.Commands
 			}
 			ResetSection();
 			plr.SendSuccessMessage("Drained area. ({0})", edits);
+			base.Execute();
 		}
 	}
 }

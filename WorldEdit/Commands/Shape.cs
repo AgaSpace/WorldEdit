@@ -15,10 +15,10 @@ namespace WorldEdit.Commands
         private PlaceID what;
         private bool filled;
 
-        public Shape(int x, int y, int x2, int y2, MagicWand magicWand, TSPlayer plr,
+        public Shape(int x, int y, int x2, int y2, MagicWand magicWand, TSPlayer plr, string action,
             int shapeType, int rotateType, int flipType, PlaceID what, bool filled,
             Expression expression)
-            : base(x, y, x2, y2, magicWand, plr, false)
+            : base(x, y, x2, y2, magicWand, plr, action, false)
         {
             this.expression = expression ?? new TestExpression(new Test(t => true));
             this.shapeType = shapeType;
@@ -423,6 +423,7 @@ namespace WorldEdit.Commands
 
             ResetSection();
             plr.SendSuccessMessage("Set {0}{1} shape. ({2})", filled ? "filled " : "", what.Name, edits);
+            base.Execute();
         }
     }
 }

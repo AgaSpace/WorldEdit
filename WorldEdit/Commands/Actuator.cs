@@ -9,8 +9,9 @@ namespace WorldEdit.Commands
         private readonly bool remove;
         private readonly Expression expression;
 
-        public Actuator(int x, int y, int x2, int y2, MagicWand magicWand, TSPlayer plr, Expression expression, bool remove)
-            : base(x, y, x2, y2, magicWand, plr)
+        public Actuator(int x, int y, int x2, int y2, MagicWand magicWand, TSPlayer plr, string action,
+            Expression expression, bool remove)
+            : base(x, y, x2, y2, magicWand, plr, action)
         {
             this.remove = remove;
             this.expression = expression ?? new TestExpression(new Test(t => true));
@@ -36,6 +37,7 @@ namespace WorldEdit.Commands
             }
             ResetSection();
             plr.SendSuccessMessage("{0} actuators. ({1})", remove ? "Removed" : "Set", edits);
+            base.Execute();
         }
     }
 }

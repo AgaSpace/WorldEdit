@@ -8,8 +8,8 @@ namespace WorldEdit.Commands
 	public class Activate : WECommand
 	{
 		private readonly int _action;
-		public Activate(int x, int y, int x2, int y2, TSPlayer plr, byte action)
-			: base(x, y, x2, y2, null, plr)
+		public Activate(int x, int y, int x2, int y2, TSPlayer plr, string fullAction, byte action)
+			: base(x, y, x2, y2, null, plr, fullAction)
 		{
 			_action = action;
 		}
@@ -292,6 +292,7 @@ namespace WorldEdit.Commands
             if (noMsg == 10)
             { plr.SendSuccessMessage("There are no objects to activate in this area."); }
             ResetSection();
+            base.Execute();
 		}
 	}
 }

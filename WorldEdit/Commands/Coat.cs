@@ -21,8 +21,9 @@ namespace WorldEdit.Commands
 		private Expression? expression;
 		private bool walls;
 
-		public Coat(int x, int y, int x2, int y2, MagicWand magicWand, TSPlayer plr, CoatingKind kind, bool walls, Expression? expression)
-			: base(x, y, x2, y2, magicWand, plr)
+		public Coat(int x, int y, int x2, int y2, MagicWand magicWand, TSPlayer plr, 
+			CoatingKind kind, bool walls, Expression? expression, string action)
+			: base(x, y, x2, y2, magicWand, plr, action)
 		{
 			this.kind = kind;
 			this.expression = expression;
@@ -82,6 +83,7 @@ namespace WorldEdit.Commands
 			ResetSection();
 			var what = walls ? "walls" : "tiles";
 			plr.SendSuccessMessage($"Coated {what}. ({edits})");
+			base.Execute();
 		}
 	}
 }

@@ -9,8 +9,9 @@ namespace WorldEdit.Commands
 		private Expression expression;
 		private TilePlaceID tileType;
 
-		public Set(int x, int y, int x2, int y2, MagicWand magicWand, TSPlayer plr, TilePlaceID tileType, Expression expression)
-			: base(x, y, x2, y2, magicWand, plr)
+		public Set(int x, int y, int x2, int y2, MagicWand magicWand, TSPlayer plr, 
+			TilePlaceID tileType, Expression expression, string action)
+			: base(x, y, x2, y2, magicWand, plr, action)
 		{
 			this.tileType = tileType;
 			this.expression = expression ?? new TestExpression(new Test(t => true));
@@ -35,6 +36,7 @@ namespace WorldEdit.Commands
 			}
 			ResetSection();
 			plr.SendSuccessMessage($"Set tiles to {tileType.Name}. ({edits})");
+			base.Execute();
 		}
 	}
 }

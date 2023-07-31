@@ -7,8 +7,8 @@ namespace WorldEdit.Commands
 		private int accountID;
 		private int steps;
 
-		public Undo(TSPlayer plr, int accountID, int steps)
-			: base(0, 0, 0, 0, plr)
+		public Undo(TSPlayer plr, int accountID, int steps, string action)
+			: base(0, 0, 0, 0, plr, action)
 		{
 			this.accountID = accountID;
 			this.steps = steps;
