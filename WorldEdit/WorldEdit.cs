@@ -497,7 +497,7 @@ namespace WorldEdit
             {
 				HelpText = "It helps to manage the points always."
 			});
-			TShockAPI.Commands.ChatCommands.Add(new Command("worldedit.history.redo", Redo, "/redo")
+			TShockAPI.Commands.ChatCommands.Add(new Command("worldedit.history.redo", Redo, "/redo", "/r")
 			{
 				HelpText = "Redoes a number of worldedit actions."
 			});
@@ -589,7 +589,7 @@ namespace WorldEdit
 			{
 				HelpText = "Creates text with alphabet statues in the worldedit selection."
 			});
-			TShockAPI.Commands.ChatCommands.Add(new Command("worldedit.history.undo", Undo, "/undo")
+			TShockAPI.Commands.ChatCommands.Add(new Command("worldedit.history.undo", Undo, "/undo", "/u")
 			{
 				HelpText = "Undoes a number of worldedit actions."
 			});
