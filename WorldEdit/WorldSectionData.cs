@@ -112,6 +112,7 @@ namespace WorldEdit
 					break;
 				case TileID.Containers:
 				case TileID.Dressers:
+				case TileID.Containers2:
 					if (tile.frameX % 36 == 0 && tile.frameY == 0)
 					{
 						var id = Chest.FindChest(actualX, actualY);
