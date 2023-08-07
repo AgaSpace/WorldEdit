@@ -30,7 +30,7 @@ namespace WorldEdit.Logger
                 new SqlColumn("AccountID", MySqlDbType.Int32),
                 new SqlColumn("Action", MySqlDbType.Text),
                 new SqlColumn("FullAction", MySqlDbType.Text),
-                new SqlColumn("Time", MySqlDbType.DateTime) { Primary = true },
+                new SqlColumn("Time", MySqlDbType.Int64) { Primary = true },
                 new SqlColumn("X", MySqlDbType.Int32),
                 new SqlColumn("Y", MySqlDbType.Int32),
                 new SqlColumn("X2", MySqlDbType.Int32),
@@ -43,7 +43,7 @@ namespace WorldEdit.Logger
         public bool Log(UserAccount account, WECommand command, int x, int y, int x2, int y2)
         {
             return _db.Query($"INSERT INTO {name} VALUES(@0, @1, @2, @3, @4, @5, @6, @7, @8)", account.ID, command.GetType().Name, command.action,
-                DateTime.UtcNow, x, y, x2, y2, Main.worldID) > 0;
+                DateTime.UtcNow.Ticks, x, y, x2, y2, Main.worldID) > 0;
         }
 
         public IEnumerable<WorldEditAction> Log(int x, int y, int worldID)
@@ -62,7 +62,7 @@ namespace WorldEdit.Logger
                         AccountID = reader.GetInt32(0),
                         Action = reader.GetString(1),
                         FullAction = reader.GetString(2),
-                        Executed = reader.GetDateTime(3),
+                        Ticks = reader.GetInt64(3),
                         X = reader.GetInt32(4),
                         Y = reader.GetInt32(5),
                         X2 = reader.GetInt32(6),
@@ -81,7 +81,10 @@ namespace WorldEdit.Logger
         public string Action;
         public string FullAction;
 
-        public DateTime Executed;
+        //public DateTime Executed;
+
+        public long Ticks;
+        public DateTime Executed => new DateTime(Ticks);
 
         public int X;
         public int Y;
