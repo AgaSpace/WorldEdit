@@ -114,18 +114,55 @@ namespace WorldEdit
 
         public bool SetTile(int x, int y)
         {
-			Main.tile[x, y].Clear(TileDataType.Tile);
-            bool result = WorldGen.PlaceTile(x, y, tileID, style: placeStyle);
+            ITile tile = Main.tile[x, y];
+            tile.Clear(TileDataType.Tile);
 
-			#region Workarounds for WorldGen.PlaceTile being silly
-			// for some reason PlaceTile discards the placestyle for books
-			if (tileID == 50)
-			{
-				Main.tile[x, y].frameX = (short)(18 * placeStyle);
-			}
-            #endregion
+            switch (tileID)
+            {
+                case -1:
+                    tile.active(false);
+                    tile.frameX = -1;
+                    tile.frameY = -1;
+                    tile.liquidType(0);
+                    tile.liquid = 0;
+                    tile.type = 0;
+                    break;
+                case -2:
+                    tile.active(false);
+                    tile.liquidType(1);
+                    tile.liquid = 255;
+                    tile.type = 0;
+                    break;
+                case -3:
+                    tile.active(false);
+                    tile.liquidType(2);
+                    tile.liquid = 255;
+                    tile.type = 0;
+                    break;
+                case -4:
+                    tile.active(false);
+                    tile.liquidType(0);
+                    tile.liquid = 255;
+                    tile.type = 0;
+                    break;
+                default:
+                    if (Main.tileFrameImportant[tileID])
+                        // WorldGen.PlaceTile(i, j, tileType);
+                        // We don't need the player to know how to put the furniture.
+                        return false;
+                    else
+                    {
+                        tile.active(true);
+                        tile.frameX = -1;
+                        tile.frameY = -1;
+                        tile.liquidType(0);
+                        tile.liquid = 0;
+                        tile.type = (ushort)tileID;
+                    }
+                    break;
+            }
 
-            return result;
+            return true;
         }
     }
     public readonly record struct WallPlaceID(int wallID, string name) : PlaceID
