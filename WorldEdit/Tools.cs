@@ -876,6 +876,9 @@ namespace WorldEdit
         {
             Tuple<string, int, int, int> settings = RowSettings(Row, FirstRow);
             WEPoint[,] text = new WEPoint[Width, settings.Item4];
+            for (int i = 0; i < text.GetLength(0); i++)
+                for (int j = 0; j < text.GetLength(1); j++)
+                    text[i, j] = new WEPoint(-1, -1);
             List<char> letters = settings.Item1.ToCharArray().ToList();
 
             int diff = (int)Math.Ceiling((letters.Count * 2 - Width) / 2d), x = 0;
@@ -956,13 +959,20 @@ namespace WorldEdit
         private static WEPoint[,] CreateStatueLetter(char Letter)
         {
             WEPoint[,] letter = new WEPoint[2, 3];
+
             short leftTop, a = 0;
             if ((Letter > 47) && (Letter < 58))
             { leftTop = (short)((Letter - 48) * 36); }
             else if ((Letter > 96) && (Letter < 123))
             { leftTop = (short)((Letter - 87) * 36); }
-            else { return letter; }
-            
+            else
+            {
+                for (int i = 0; i < letter.GetLength(0); i++)
+                    for (int j = 0; j < letter.GetLength(1); j++)
+                        letter[i, j] = new WEPoint(-1, -1);
+                return letter;
+            }
+
             for (short i = leftTop; i <= (leftTop + 18); i += 18)
             {
                 int b = 0;

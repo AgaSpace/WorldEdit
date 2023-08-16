@@ -24,7 +24,7 @@ namespace WorldEdit.Commands
                 for (int j = 0; j < frames.GetLength(1); j++)
                 {
                     if (!Tools.InMapBoundaries(i + x, j + y)
-                        || (frames[i, j].X == 0 && frames[i, j].Y == 0))
+                        || (frames[i, j].X == -1 && frames[i, j].Y == -1))
                     { continue; }
                     ITile tile = Main.tile[i + x, j + y];
                     tile.active(true);
