@@ -1,4 +1,5 @@
 using Terraria;
+using Terraria.ID;
 using Terraria.DataStructures;
 using TShockAPI;
 using WorldEdit.Expressions;
@@ -99,6 +100,11 @@ namespace WorldEdit
     }
     public readonly record struct BlockPlaceID(int tileID, int placeStyle, string name) : TilePlaceID
     {
+        static bool[] canBePlaced = TileID.Sets.Factory.CreateBoolSet(
+            TileID.Platforms,
+            TileID.Vines,
+            TileID.MinecartTrack
+            );
         public string Name => name;
 
         public bool CanSet(ITile tile, Selection selection, Expression expression, MagicWand magicWand, int x, int y, TSPlayer player)
@@ -147,9 +153,12 @@ namespace WorldEdit
                     break;
                 default:
                     if (Main.tileFrameImportant[tileID])
-                        // WorldGen.PlaceTile(i, j, tileType);
-                        // We don't need the player to know how to put the furniture.
-                        return false;
+                    {
+                        bool canBePlace = canBePlaced[tileID];
+                        if (canBePlace)
+                            WorldGen.PlaceTile(x, y, tileID, style: placeStyle < 0 ? 0 : placeStyle);
+                        return canBePlace;
+                    }
                     else
                     {
                         tile.active(true);
