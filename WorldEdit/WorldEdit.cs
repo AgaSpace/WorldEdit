@@ -2568,8 +2568,8 @@ namespace WorldEdit
 			var tiles = Tools.GetTileID(e.Parameters[0].ToLowerInvariant());
 			if (tiles.Count == 0)
 				e.Player.SendErrorMessage("Invalid tile '{0}'!", e.Parameters[0]);
-			else if (tiles.Count > 1)
-				e.Player.SendErrorMessage("More than one tile matched!");
+			//else if (tiles.Count > 1)
+			//	e.Player.SendErrorMessage("More than one tile matched!");
 			else
 			{
 				Expression expression = null;
