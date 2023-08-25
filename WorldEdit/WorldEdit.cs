@@ -2603,8 +2603,8 @@ namespace WorldEdit
 			var walls = Tools.GetWallID(e.Parameters[0].ToLowerInvariant());
 			if (walls.Count == 0)
 				e.Player.SendErrorMessage("Invalid wall '{0}'!", e.Parameters[0]);
-			else if (walls.Count > 1)
-				e.Player.SendErrorMessage("More than one wall matched!");
+			//else if (walls.Count > 1)
+			//	e.Player.SendErrorMessage("More than one wall matched!");
 			else
 			{
 				Expression expression = null;
