@@ -47,6 +47,7 @@ namespace WorldEdit
             tile.liquidType(0);
             tile.liquid = 0;
             tile.type = 0;
+            tile.inActive(false);
             tile.ClearBlockPaintAndCoating();
             return true;
         }
@@ -156,6 +157,7 @@ namespace WorldEdit
                     {
                         bool canBePlace = canBePlaced[tileID];
                         if (canBePlace)
+                            // TODO: PlaceStyle check, TilePlaceStyle
                             WorldGen.PlaceTile(x, y, tileID, style: placeStyle < 0 ? 0 : placeStyle);
                         return canBePlace;
                     }
