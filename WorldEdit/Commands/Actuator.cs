@@ -27,7 +27,7 @@ namespace WorldEdit.Commands
                 for (int j = y; j <= y2; j++)
                 {
                     var tile = Main.tile[i, j];
-                    if (tile.active() && (remove ? tile.actuator() : !tile.actuator())
+                    if ((remove ? tile.actuator() : !tile.actuator())
                         && select(i, j, plr) && expression.Evaluate(tile) && magicWand.InSelection(i, j))
                     {
                         tile.actuator(!remove);
