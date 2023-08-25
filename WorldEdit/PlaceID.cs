@@ -41,14 +41,11 @@ namespace WorldEdit
         public bool SetTile(int x, int y)
         {
             var tile = Main.tile[x, y];
-            tile.active(false);
-            tile.frameX = -1;
-            tile.frameY = -1;
-            tile.liquidType(0);
-            tile.liquid = 0;
-            tile.type = 0;
+
+            tile.Clear(TileDataType.Tile | TileDataType.TilePaint | TileDataType.Liquid | 
+                TileDataType.Slope);
             tile.inActive(false);
-            tile.ClearBlockPaintAndCoating();
+
             return true;
         }
     }
