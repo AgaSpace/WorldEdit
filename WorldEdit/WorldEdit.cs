@@ -1257,6 +1257,8 @@ namespace WorldEdit
 				liquid = 1;
 			else if (string.Equals(e.Parameters[0], "honey", StringComparison.OrdinalIgnoreCase))
 				liquid = 2;
+			else if (string.Equals(e.Parameters[0], "shimmer", StringComparison.OrdinalIgnoreCase))
+				liquid = 3;
 			else if (!string.Equals(e.Parameters[0], "water", StringComparison.OrdinalIgnoreCase))
 			{
 				e.Player.SendErrorMessage("Invalid liquid type '{0}'!", e.Parameters[0]);
