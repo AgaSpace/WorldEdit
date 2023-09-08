@@ -2273,7 +2273,8 @@ namespace WorldEdit
 							new PaginationTools.Settings
 							{
 								HeaderFormat = "Schematics ({0}/{1}):",
-								FooterFormat = "Type //schematic list {0} for more."
+								FooterFormat = "Type //schematic list {0} for more.",
+								NothingToDisplayString = "There are no available schematics."
 							});
 					}
 					return;
