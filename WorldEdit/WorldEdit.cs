@@ -2209,6 +2209,11 @@ namespace WorldEdit
             const string fileFormat = "schematic-{0}.dat";
 
 			string subCmd = e.Parameters.Count == 0 ? "help" : e.Parameters[0].ToLowerInvariant();
+
+			bool negative = subCmd.StartsWith("!");
+			if (negative)
+				subCmd = subCmd.Substring(1);
+
 			switch (subCmd)
 			{
 				case "del":
@@ -2226,7 +2231,10 @@ namespace WorldEdit
 							return;
 						}
 
-						string path = Path.Combine("worldedit", string.Format(fileFormat, e.Parameters[2]));
+						string arg = e.Parameters[2];
+						if (Config.StartSchematicNamesWithCreatorUserID && (!e.Player.HasPermission("worldedit.schematic.delete.op") || !negative))
+							arg = e.Player.Account.ID + "-" + arg;
+						string path = Path.Combine("worldedit", string.Format(fileFormat, arg));
 
 						if (!File.Exists(path))
 						{
@@ -2250,8 +2258,16 @@ namespace WorldEdit
 						if (!PaginationTools.TryParsePageNumber(e.Parameters, 1, e.Player, out pageNumber))
 							return;
 
-						var schematics = from s in Directory.EnumerateFiles("worldedit", string.Format(fileFormat, "*"))
-											select s.Substring(20, s.Length - 24);
+						string arg = "*";
+						int startIndex = 20;
+						if (Config.StartSchematicNamesWithCreatorUserID && (!e.Player.HasPermission("worldedit.schematic.op") || !negative))
+						{
+							arg = e.Player.Account.ID + "-" + arg;
+							startIndex = startIndex + e.Player.Account.ID.ToString().Length + 1;
+						}
+
+						var schematics = from s in Directory.EnumerateFiles("worldedit", string.Format(fileFormat, arg))
+							select s.Substring(startIndex, s.Length - (startIndex + 4));
 
 						PaginationTools.SendPage(e.Player, pageNumber, PaginationTools.BuildLinesFromTerms(schematics),
 							new PaginationTools.Settings
@@ -2275,7 +2291,11 @@ namespace WorldEdit
 							return;
 						}
 
-						var path = Path.Combine("worldedit", string.Format(fileFormat, e.Parameters[1]));
+						string arg = e.Parameters[1];
+						if (Config.StartSchematicNamesWithCreatorUserID && (!e.Player.HasPermission("worldedit.schematic.load.op") || !negative))
+							arg = e.Player.Account.ID + "-" + arg;
+
+						var path = Path.Combine("worldedit", string.Format(fileFormat, arg));
 
 						var clipboard = Tools.GetClipboardPath(e.Player.Account.ID);
 
@@ -2346,8 +2366,8 @@ namespace WorldEdit
 							return;
 						}
 
-                        if (Config.StartSchematicNamesWithCreatorUserID)
-                            name = $"{e.Player.Account.ID}-{name}";
+                        if (Config.StartSchematicNamesWithCreatorUserID && (!e.Player.HasPermission("worldedit.schematic.save.op") || !negative))
+								name = $"{e.Player.Account.ID}-{name}";
 
 						var path = Path.Combine("worldedit", string.Format(fileFormat, name));
 
@@ -2409,8 +2429,8 @@ namespace WorldEdit
                             return;
                         }
 
-                        if (Config.StartSchematicNamesWithCreatorUserID)
-                            name = $"{e.Player.Account.ID}-{name}";
+						if (Config.StartSchematicNamesWithCreatorUserID && (!e.Player.HasPermission("worldedit.schematic.save.op") || !negative))
+							name = $"{e.Player.Account.ID}-{name}";
 
                         var path = Path.Combine("worldedit", string.Format(fileFormat, name));
 
@@ -2449,7 +2469,11 @@ namespace WorldEdit
                             return;
                         }
 
-                        string path = Path.Combine("worldedit", string.Format(fileFormat, e.Parameters[1]));
+						string arg = e.Parameters[1];
+						if (Config.StartSchematicNamesWithCreatorUserID && (!e.Player.HasPermission("worldedit.schematic.load.op") || !negative))
+							arg = e.Player.Account.ID + "-" + arg;
+
+						string path = Path.Combine("worldedit", string.Format(fileFormat, arg));
                         if (!File.Exists(path))
                         {
                             e.Player.SendErrorMessage("Invalid schematic '{0}'!", e.Parameters[1]);
