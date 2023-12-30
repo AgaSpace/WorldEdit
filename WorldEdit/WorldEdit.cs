@@ -84,14 +84,6 @@ namespace WorldEdit
 			ServerApi.Hooks.GamePostInitialize.Register(this, OnPostInitialize);
 			ServerApi.Hooks.NetGetData.Register(this, OnGetData);
             TShockAPI.Hooks.GeneralHooks.ReloadEvent += OnReload;
-
-            On.Terraria.WorldGen.TileFrame += WorldGen_TileFrame;
-		}
-
-        private void WorldGen_TileFrame(On.Terraria.WorldGen.orig_TileFrame orig, int i, int j, bool resetFrame, bool noBreak)
-        {
-			orig.Invoke(i, j, resetFrame, new StackTrace()
-				.GetFrames().Any(i => i.GetMethod()?.Name == "PlaceTile"));
 		}
 
         private static void OnReload(TShockAPI.Hooks.ReloadEventArgs e)
