@@ -9,9 +9,14 @@
     <Authors>Anzhelika</Authors>
     <Description>Translates WorldEdit schematics.</Description>
     <Copyright>Copyright © $(Authors) 2022</Copyright>
+    <Platforms>AnyCPU;x64</Platforms>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <NoWarn>1701;1702;IDE0047</NoWarn>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <NoWarn>1701;1702;IDE0047</NoWarn>
   </PropertyGroup>
 
@@ -19,8 +24,16 @@
     <NoWarn>1701;1702;IDE0047</NoWarn>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <NoWarn>1701;1702;IDE0047</NoWarn>
+  </PropertyGroup>
+
   <ItemGroup>
     <None Remove="WorldEditSchematicTranslator.ico" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="TShock" Version="5.2.1" />
   </ItemGroup>
 
 </Project>
